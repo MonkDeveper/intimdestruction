@@ -201,4 +201,4 @@ If you have any questions about this agreement, please contact Solace at **solac
 ### **FINE FOR TAMPERING: £300 - £3000**
 
 If you are found tampering with, modifying, or redistributing this code without permission, you agree to pay a fine ranging from **£300 to £3000**, depending on the severity of the violation. Legal action will be pursued for any breach of the terms, and civil or criminal charges may apply.
-```
+``` solacedevlegal@gmail.com
