@@ -1,6 +1,14 @@
 ```markdown
 # IntimDestruction Repository
 
+## Welcome to the IntimDestruction Project
+
+This repository contains the code for the IntimDestruction project, developed by Solace. By accessing and using this code, you agree to the terms and conditions outlined in this document.
+
+**Important**: Unauthorized use, modification, or distribution of this code is strictly prohibited. Please read the full agreement below before using the repository.
+
+---
+
 ## Cloning the Repository
 
 To get this repository on your computer, follow these steps:
@@ -97,7 +105,7 @@ By using or interacting with this repository and its code, you agree to the foll
 
 ### Contact Information
 
-For any questions or concerns regarding this legal agreement, please contact Solace at the official contact information provided. Unauthorized use, modification, or redistribution of this code will result in legal consequences.
+For any questions or concerns regarding this legal agreement, please contact Solace at **solacedevlegal@gmail.com**. Unauthorized use, modification, or redistribution of this code will result in legal consequences.
 
 ---
 
@@ -184,7 +192,7 @@ If you disagree with any part of this agreement, cease using the code immediatel
 
 By accessing or using this code, you acknowledge that you have read, understood, and agree to abide by the terms and conditions set forth in this document. If you do not agree with any part of this agreement, you must cease using the code immediately.
 
-If you have any questions about this agreement, please contact Solace at the official contact information.
+If you have any questions about this agreement, please contact Solace at **solacedevlegal@gmail.com**.
 
 ---
 
@@ -194,5 +202,3 @@ If you have any questions about this agreement, please contact Solace at the off
 
 If you are found tampering with, modifying, or redistributing this code without permission, you agree to pay a fine ranging from **£300 to £3000**, depending on the severity of the violation. Legal action will be pursued for any breach of the terms, and civil or criminal charges may apply.
 ```
-
-This `README.md` includes the instructions for cloning the repository and a comprehensive legal notice regarding the usage, copyright, fines, and terms of service.
